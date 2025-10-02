@@ -1,0 +1,36 @@
+cmake_minimum_required(VERSION 3.20)
+project(Tutorial_game VERSION 0.1.0 LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Require OpenGL
+find_package(OpenGL REQUIRED)
+
+# Include CPM
+include(cmake/CPM.cmake)
+
+# GLFW (windowing + input)
+CPMAddPackage(
+  NAME glfw
+  GITHUB_REPOSITORY glfw/glfw
+  GIT_TAG 3.4
+)
+
+# GLAD (OpenGL function loader)
+CPMAddPackage(
+  NAME glad
+  GITHUB_REPOSITORY Dav1dde/glad
+  VERSION 0.1.36
+  OPTIONS "CMAKE_MINIMUM_REQUIRED_VERSION:STRING=3.20"
+)
+
+# GLM (header-only math library)
+CPMAddPackage(
+    NAME glm
+    GITHUB_REPOSITORY g-truc/glm
+    GIT_TAG 1.0.1
+)
+
+# Add sources
+add_subdirectory(src)

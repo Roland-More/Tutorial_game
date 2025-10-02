@@ -1,0 +1,33 @@
+LICENSE
+
+# ===== Build Artifacts =====
+**/build/
+/bin/
+/CMakeFiles/
+/CMakeCache.txt
+/*.cmake.user
+Makefile
+*.o
+*.obj
+*.exe
+*.dll
+*.lib
+*.pdb
+
+# ===== Temporary Files =====
+*.log
+*.tmp
+*.swp
+*.DS_Store
+*.~* 
+*~
+
+# ===== Environment files =====
+.vscode
+.vscode/*
+*.sln
+
+# ===== OS Files =====
+Thumbs.db
+ehthumbs.db
+Desktop.ini
