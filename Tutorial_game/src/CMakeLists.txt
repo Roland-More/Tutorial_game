@@ -6,14 +6,20 @@ add_executable(Tutorial_game
     resource_manager.cpp
     stbi_impl.cpp
     sprite_renderer.cpp
+    game_object.cpp
+    game_level.cpp
 )
 
-# Copy assets after every build, into the same folder as the executable
-add_custom_command(TARGET Tutorial_game POST_BUILD
+# Copy assets to build directory
+add_custom_target(assets ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_DIR}/assets
         $<TARGET_FILE_DIR:Tutorial_game>/assets
+    COMMENT "Copying assets..."
 )
+
+# Ensure update of assets
+add_dependencies(Tutorial_game assets)
 
 # Link GLFW + GLAD + OpenGL
 target_link_libraries(Tutorial_game PRIVATE glfw glad OpenGL::GL glm)
