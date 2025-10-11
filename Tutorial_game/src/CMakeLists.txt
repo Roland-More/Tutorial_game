@@ -8,6 +8,7 @@ add_executable(Tutorial_game
     sprite_renderer.cpp
     game_object.cpp
     game_level.cpp
+    ball_object.cpp
 )
 
 # Copy assets to build directory
