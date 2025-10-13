@@ -49,6 +49,8 @@ private:
     // level tracking
     std::vector<GameLevel> Levels;
     unsigned int           Level;
+    
+    void DoCollisions();
 };
 
 #endif
