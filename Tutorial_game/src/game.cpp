@@ -14,9 +14,20 @@
 #include "ball_object.h"
 
 #include <algorithm>
+#include <tuple>
 
 
-bool CheckCollision(BallObject &one, GameObject &two);
+using Collision = std::tuple<bool, Direction, glm::vec2>;
+
+enum Direction {
+	UP,
+	RIGHT,
+	DOWN,
+	LEFT
+};
+
+
+Collision CheckCollision(BallObject &one, GameObject &two);
 
 
 Game::Game(unsigned int width, unsigned int height) 
@@ -150,17 +161,42 @@ void Game::DoCollisions()
     {
         if (!box.Destroyed)
         {
-            if (CheckCollision(*Ball, box))
+            const Collision collision = CheckCollision(*Ball, box);
+            if (std::get<0>(collision)) // if collision is true
             {
+                // destroy block if not solid
                 if (!box.IsSolid)
                     box.Destroyed = true;
+                // collision resolution
+                const Direction dir = std::get<1>(collision);
+                const glm::vec2 diff_vector = std::get<2>(collision);
+                if (dir == LEFT || dir == RIGHT) // horizontal collision
+                {
+                    Ball->Velocity.x = -Ball->Velocity.x; // reverse horizontal velocity
+                    // relocate
+                    const float penetration = Ball->Radius - std::abs(diff_vector.x);
+                    if (dir == LEFT)
+                        Ball->Position.x += penetration; // move ball to right
+                    else
+                        Ball->Position.x -= penetration; // move ball to left;
+                }
+                else // vertical collision
+                {
+                    Ball->Velocity.y = -Ball->Velocity.y; // reverse vertical velocity
+                    // relocate
+                    const float penetration = Ball->Radius - std::abs(diff_vector.y);
+                    if (dir == UP)
+                        Ball->Position.y -= penetration; // move ball back up
+                    else
+                        Ball->Position.y += penetration; // move ball back down
+                }
             }
         }
     }
 }
 
 
-bool CheckCollision(BallObject &one, GameObject &two) // AABB - Circle collision
+Collision CheckCollision(BallObject &one, GameObject &two) // AABB - Circle collision
 {
     // get center point circle first 
     glm::vec2 center(one.Position + one.Radius);
@@ -177,5 +213,31 @@ bool CheckCollision(BallObject &one, GameObject &two) // AABB - Circle collision
     glm::vec2 closest = aabb_center + clamped;
     // retrieve vector between center circle and closest point AABB and check if length <= radius
     difference = closest - center;
-    return glm::length(difference) < one.Radius;
+
+    if (glm::length(difference) <= one.Radius)
+        return std::make_tuple(true, VectorDirection(difference), difference);
+    else
+        return std::make_tuple(false, UP, glm::vec2(0.0f, 0.0f));
+}
+
+Direction VectorDirection(glm::vec2 target)
+{
+    constexpr glm::vec2 compass[] = {
+        glm::vec2(0.0f, 1.0f),	// up
+        glm::vec2(1.0f, 0.0f),	// right
+        glm::vec2(0.0f, -1.0f),	// down
+        glm::vec2(-1.0f, 0.0f)	// left
+    };
+    float max = 0.0f;
+    unsigned int best_match = -1;
+    for (unsigned int i = 0; i < 4; i++)
+    {
+        float dot_product = glm::dot(glm::normalize(target), compass[i]);
+        if (dot_product > max)
+        {
+            max = dot_product;
+            best_match = i;
+        }
+    }
+    return (Direction)best_match;
 }
