@@ -17,8 +17,6 @@
 #include <tuple>
 
 
-using Collision = std::tuple<bool, Direction, glm::vec2>;
-
 enum Direction {
 	UP,
 	RIGHT,
@@ -26,8 +24,11 @@ enum Direction {
 	LEFT
 };
 
+using Collision = std::tuple<bool, Direction, glm::vec2>;
+
 
 Collision CheckCollision(BallObject &one, GameObject &two);
+Direction VectorDirection(glm::vec2 target);
 
 
 Game::Game(unsigned int width, unsigned int height) 
@@ -49,7 +50,7 @@ const glm::vec2 PLAYER_SIZE(100.0f, 20.0f);
 const float PLAYER_VELOCITY = 500.0f;
 
 const float BALL_RADIUS = 12.5f;
-const glm::vec2 INITIAL_BALL_VELOCITY(10.0f, -35.0f);
+const glm::vec2 INITIAL_BALL_VELOCITY(100.0f, -350.0f);
 
 GameObject      *Player;
 BallObject      *Ball;
