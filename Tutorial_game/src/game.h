@@ -51,6 +51,9 @@ private:
     unsigned int           Level;
     
     void DoCollisions();
+
+    void ResetLevel();
+    void ResetPlayer();
 };
 
 #endif
