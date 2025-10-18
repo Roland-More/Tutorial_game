@@ -13,15 +13,19 @@
 #include "resource_manager.h"
 
 #include <iostream>
+#include <thread>
+#include <chrono>
 
 // GLFW function declarations
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
 // The Width of the screen
-const unsigned int SCREEN_WIDTH = 800;
+constexpr unsigned int SCREEN_WIDTH = 800;
 // The height of the screen
-const unsigned int SCREEN_HEIGHT = 600;
+constexpr unsigned int SCREEN_HEIGHT = 600;
+// Framerate
+constexpr unsigned int FPS = 240;
 
 Game Breakout(SCREEN_WIDTH, SCREEN_HEIGHT);
 
@@ -69,9 +73,10 @@ int main(int argc, char *argv[])
     {
         // calculate delta time
         // --------------------
-        float currentFrame = glfwGetTime();
+        const float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
+
         glfwPollEvents();
 
         // manage user input
@@ -89,6 +94,9 @@ int main(int argc, char *argv[])
         Breakout.Render();
 
         glfwSwapBuffers(window);
+
+        const float frameTime = glfwGetTime() - currentFrame;
+        std::this_thread::sleep_for(std::chrono::nanoseconds(static_cast<int>(1000000000 * (1.0f / FPS - frameTime)) ));
     }
 
     // delete all resources as loaded using the resource manager
