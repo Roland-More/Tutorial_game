@@ -10,6 +10,7 @@ add_executable(Tutorial_game
     game_level.cpp
     ball_object.cpp
     particle_generator.cpp
+    post_processor.cpp
 )
 
 # Copy assets to build directory
