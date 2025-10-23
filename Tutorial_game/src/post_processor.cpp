@@ -87,7 +87,7 @@ void PostProcessor::Render(float time)
     this->PostProcessingShader.SetInteger("shake", this->Shake);
     // render textured quad
     glActiveTexture(GL_TEXTURE0);
-    this->Texture.Bind();	
+    this->Texture.Bind();
     glBindVertexArray(this->VAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
