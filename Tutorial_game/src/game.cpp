@@ -31,6 +31,7 @@ using Collision = std::tuple<bool, Direction, glm::vec2>;
 
 Collision CheckCollision(BallObject &one, GameObject &two);
 Direction VectorDirection(glm::vec2 target);
+bool ShouldSpawn(unsigned int chance);
 
 
 Game::Game(unsigned int width, unsigned int height) 
@@ -87,6 +88,13 @@ void Game::Init()
     ResourceManager::LoadTexture("assets/textures/block_solid.png", false, "block_solid");
     ResourceManager::LoadTexture("assets/textures/paddle.png", true, "paddle");
     ResourceManager::LoadTexture("assets/textures/particle.png", true, "particle");
+
+    ResourceManager::LoadTexture("assets/textures/powerup_chaos.png", true, "chaos");
+    ResourceManager::LoadTexture("assets/textures/powerup_confuse.png", true, "confuse");
+    ResourceManager::LoadTexture("assets/textures/powerup_increase.png", true, "increase");
+    ResourceManager::LoadTexture("assets/textures/powerup_passthrough.png", true, "passthrough");
+    ResourceManager::LoadTexture("assets/textures/powerup_speed.png", true, "speed");
+    ResourceManager::LoadTexture("assets/textures/powerup_sticky.png", true, "sticky");
 
     // Load post-processing resources
     Effects = new PostProcessor(ResourceManager::GetShader("effects"), this->Width, this->Height);
@@ -287,6 +295,34 @@ void Game::ResetPlayer()
     Ball->Reset(Player->Position + glm::vec2(PLAYER_SIZE.x / 2.0f - BALL_RADIUS, -(BALL_RADIUS * 2.0f)), INITIAL_BALL_VELOCITY);
 }
 
+void Game::SpawnPowerUps(GameObject &block)
+{
+    if (ShouldSpawn(75)) // 1 in 75 chance
+        this->PowerUps.push_back(
+             PowerUp("speed", glm::vec3(0.5f, 0.5f, 1.0f), 0.0f, block.Position, tex_speed
+         ));
+    if (ShouldSpawn(75))
+        this->PowerUps.push_back(
+            PowerUp("sticky", glm::vec3(1.0f, 0.5f, 1.0f), 20.0f, block.Position, tex_sticky 
+        );
+    if (ShouldSpawn(75))
+        this->PowerUps.push_back(
+            PowerUp("pass-through", glm::vec3(0.5f, 1.0f, 0.5f), 10.0f, block.Position, tex_pass
+        ));
+    if (ShouldSpawn(75))
+        this->PowerUps.push_back(
+            PowerUp("pad-size-increase", glm::vec3(1.0f, 0.6f, 0.4), 0.0f, block.Position, tex_size    
+        ));
+    if (ShouldSpawn(15)) // negative powerups should spawn more often
+        this->PowerUps.push_back(
+            PowerUp("confuse", glm::vec3(1.0f, 0.3f, 0.3f), 15.0f, block.Position, tex_confuse
+        ));
+    if (ShouldSpawn(15))
+        this->PowerUps.push_back(
+            PowerUp("chaos", glm::vec3(0.9f, 0.25f, 0.25f), 15.0f, block.Position, tex_chaos
+        ));
+}
+
 
 Collision CheckCollision(BallObject &one, GameObject &two) // AABB - Circle collision
 {
@@ -332,4 +368,10 @@ Direction VectorDirection(glm::vec2 target)
         }
     }
     return (Direction)best_match;
+}
+
+bool ShouldSpawn(unsigned int chance)
+{
+    unsigned int random = rand() % chance;
+    return random == 0;
 }
