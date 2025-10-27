@@ -33,6 +33,7 @@ Collision CheckCollision(BallObject &one, GameObject &two);
 Direction VectorDirection(glm::vec2 target);
 bool ShouldSpawn(unsigned int chance);
 bool CheckCollision(GameObject &one, GameObject &two);
+void ActivatePowerUp(PowerUp &powerUp);
 
 
 Game::Game(unsigned int width, unsigned int height) 
@@ -235,6 +236,8 @@ void Game::DoCollisions()
                     Effects->Shake = true;
                 }
                 // collision resolution
+                if (!box.IsSolid && Ball->PassThrough) continue;
+                
                 const Direction dir = std::get<1>(collision);
                 const glm::vec2 diff_vector = std::get<2>(collision);
                 if (dir == LEFT || dir == RIGHT) // horizontal collision
@@ -275,7 +278,9 @@ void Game::DoCollisions()
         Ball->Velocity.y = -Ball->Velocity.y;
         Ball->Velocity = glm::normalize(Ball->Velocity) * glm::length(oldVelocity);
         
-        Ball->Velocity.y = -1.0f * abs(Ball->Velocity.y);  
+        Ball->Velocity.y = -1.0f * abs(Ball->Velocity.y);
+
+        Ball->Stuck = Ball->Sticky;
     }
 
     for (PowerUp &powerUp : this->PowerUps)
@@ -316,12 +321,12 @@ void Game::ResetPlayer()
 
 void Game::SpawnPowerUps(GameObject &block)
 {
-    Texture2D tex_speed = ResourceManager::GetTexture("speed");
-    Texture2D tex_sticky = ResourceManager::GetTexture("sticky");
-    Texture2D tex_pass = ResourceManager::GetTexture("passthrough");
-    Texture2D tex_size = ResourceManager::GetTexture("increase");
-    Texture2D tex_confuse = ResourceManager::GetTexture("confuse");
-    Texture2D tex_chaos = ResourceManager::GetTexture("chaos");
+    const Texture2D tex_speed = ResourceManager::GetTexture("speed");
+    const Texture2D tex_sticky = ResourceManager::GetTexture("sticky");
+    const Texture2D tex_pass = ResourceManager::GetTexture("passthrough");
+    const Texture2D tex_size = ResourceManager::GetTexture("increase");
+    const Texture2D tex_confuse = ResourceManager::GetTexture("confuse");
+    const Texture2D tex_chaos = ResourceManager::GetTexture("chaos");
 
     if (ShouldSpawn(75)) // 1 in 75 chance
         this->PowerUps.push_back(
@@ -406,6 +411,38 @@ Direction VectorDirection(glm::vec2 target)
         }
     }
     return (Direction)best_match;
+}
+
+void ActivatePowerUp(PowerUp &powerUp)
+{
+    if (powerUp.Type == "speed")
+    {
+        Ball->Velocity *= 1.2;
+    }
+    else if (powerUp.Type == "sticky")
+    {
+        Ball->Sticky = true;
+        Player->Color = glm::vec3(1.0f, 0.5f, 1.0f);
+    }
+    else if (powerUp.Type == "pass-through")
+    {
+        Ball->PassThrough = true;
+        Ball->Color = glm::vec3(1.0f, 0.5f, 0.5f);
+    }
+    else if (powerUp.Type == "pad-size-increase")
+    {
+        Player->Size.x += 50;
+    }
+    else if (powerUp.Type == "confuse")
+    {
+        if (!Effects->Chaos)
+            Effects->Confuse = true; // only activate if chaos wasn't already active
+    }
+    else if (powerUp.Type == "chaos")
+    {
+        if (!Effects->Confuse)
+            Effects->Chaos = true;
+    }
 }
 
 bool ShouldSpawn(unsigned int chance)
