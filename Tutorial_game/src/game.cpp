@@ -32,6 +32,7 @@ using Collision = std::tuple<bool, Direction, glm::vec2>;
 Collision CheckCollision(BallObject &one, GameObject &two);
 Direction VectorDirection(glm::vec2 target);
 bool ShouldSpawn(unsigned int chance);
+bool CheckCollision(GameObject &one, GameObject &two);
 
 
 Game::Game(unsigned int width, unsigned int height) 
@@ -224,7 +225,10 @@ void Game::DoCollisions()
             {
                 // destroy block if not solid
                 if (!box.IsSolid)
+                {
                     box.Destroyed = true;
+                    this->SpawnPowerUps(box);
+                }
                 else
                 {   // if block is solid, enable shake effect
                     ShakeTime = 0.05f;
@@ -273,6 +277,21 @@ void Game::DoCollisions()
         
         Ball->Velocity.y = -1.0f * abs(Ball->Velocity.y);  
     }
+
+    for (PowerUp &powerUp : this->PowerUps)
+    {
+        if (!powerUp.Destroyed)
+        {
+            if (powerUp.Position.y >= this->Height)
+                powerUp.Destroyed = true;
+            if (CheckCollision(*Player, powerUp))
+            {	// collided with player, now activate powerup
+                ActivatePowerUp(powerUp);
+                powerUp.Destroyed = true;
+                powerUp.Activated = true;
+            }
+        }
+    }
 }
 
 void Game::ResetLevel()
@@ -297,6 +316,13 @@ void Game::ResetPlayer()
 
 void Game::SpawnPowerUps(GameObject &block)
 {
+    Texture2D tex_speed = ResourceManager::GetTexture("speed");
+    Texture2D tex_sticky = ResourceManager::GetTexture("sticky");
+    Texture2D tex_pass = ResourceManager::GetTexture("passthrough");
+    Texture2D tex_size = ResourceManager::GetTexture("increase");
+    Texture2D tex_confuse = ResourceManager::GetTexture("confuse");
+    Texture2D tex_chaos = ResourceManager::GetTexture("chaos");
+
     if (ShouldSpawn(75)) // 1 in 75 chance
         this->PowerUps.push_back(
              PowerUp("speed", glm::vec3(0.5f, 0.5f, 1.0f), 0.0f, block.Position, tex_speed
@@ -304,7 +330,7 @@ void Game::SpawnPowerUps(GameObject &block)
     if (ShouldSpawn(75))
         this->PowerUps.push_back(
             PowerUp("sticky", glm::vec3(1.0f, 0.5f, 1.0f), 20.0f, block.Position, tex_sticky 
-        );
+        ));
     if (ShouldSpawn(75))
         this->PowerUps.push_back(
             PowerUp("pass-through", glm::vec3(0.5f, 1.0f, 0.5f), 10.0f, block.Position, tex_pass
@@ -346,6 +372,18 @@ Collision CheckCollision(BallObject &one, GameObject &two) // AABB - Circle coll
         return std::make_tuple(true, VectorDirection(difference), difference);
     else
         return std::make_tuple(false, UP, glm::vec2(0.0f, 0.0f));
+}
+
+bool CheckCollision(GameObject &one, GameObject &two) // AABB - AABB collision
+{
+    // collision x-axis?
+    bool collisionX = one.Position.x + one.Size.x >= two.Position.x &&
+        two.Position.x + two.Size.x >= one.Position.x;
+    // collision y-axis?
+    bool collisionY = one.Position.y + one.Size.y >= two.Position.y &&
+        two.Position.y + two.Size.y >= one.Position.y;
+    // collision only if on both axes
+    return collisionX && collisionY;
 }
 
 Direction VectorDirection(glm::vec2 target)
