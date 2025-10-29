@@ -16,25 +16,23 @@
 #include "post_processor.h"
 
 #include <algorithm>
-#include <tuple>
 
 
-enum Direction {
-	UP,
-	RIGHT,
-	DOWN,
-	LEFT
-};
+SpriteRenderer    *Renderer;
+GameObject        *Player;
+BallObject        *Ball;
+ParticleGenerator *Particles;
+PostProcessor     *Effects;
 
-using Collision = std::tuple<bool, Direction, glm::vec2>;
-
+// Used to time shaking the screen
+float ShakeTime = 0.0f;
 
 Collision CheckCollision(BallObject &one, GameObject &two);
 Direction VectorDirection(glm::vec2 target);
 bool ShouldSpawn(unsigned int chance);
 bool CheckCollision(GameObject &one, GameObject &two);
 void ActivatePowerUp(PowerUp &powerUp);
-
+bool isOtherPowerUpActive(std::vector<PowerUp> &powerUps, std::string type);
 
 Game::Game(unsigned int width, unsigned int height) 
     : State(GAME_ACTIVE), Keys(), Width(width), Height(height)
@@ -44,26 +42,12 @@ Game::Game(unsigned int width, unsigned int height)
 
 Game::~Game()
 {
-    
+    delete Renderer;
+    delete Player;
+    delete Ball;
+    delete Particles;
+    delete Effects;
 }
-
-SpriteRenderer *Renderer;
-
-// Initial size of the player paddle
-const glm::vec2 PLAYER_SIZE(100.0f, 20.0f);
-// Initial velocity of the player paddle
-const float PLAYER_VELOCITY = 500.0f;
-
-const float BALL_RADIUS = 12.5f;
-const glm::vec2 INITIAL_BALL_VELOCITY(100.0f, -350.0f);
-
-// Used to time shaking the screen
-float ShakeTime = 0.0f;
-
-GameObject        *Player;
-BallObject        *Ball;
-ParticleGenerator *Particles;
-PostProcessor     *Effects;
 
 void Game::Init()
 {
@@ -149,6 +133,9 @@ void Game::Update(float dt)
     // update particles
     Particles->Update(dt, *Ball, 2, glm::vec2(Ball->Radius / 2.0f));
 
+    // update PowerUps
+    this->UpdatePowerUps(dt);
+
     // Update timing
     if (ShakeTime > 0.0f)
     {
@@ -199,6 +186,11 @@ void Game::Render()
         );
         // draw level
         this->Levels[this->Level].Draw(*Renderer);
+
+        // draw powerups
+        for (PowerUp &powerUp : this->PowerUps)
+            if (!powerUp.Destroyed)
+                powerUp.Draw(*Renderer);
 
         // draw player
         Player->Draw(*Renderer);
@@ -354,6 +346,58 @@ void Game::SpawnPowerUps(GameObject &block)
         ));
 }
 
+void Game::UpdatePowerUps(float dt)
+{
+    for (PowerUp &powerUp : this->PowerUps)
+    {
+        powerUp.Position += powerUp.Velocity * dt;
+        if (powerUp.Activated)
+        {
+            powerUp.Duration -= dt;
+
+            if (powerUp.Duration <= 0.0f)
+            {
+                // remove powerup from list (will later be removed)
+                powerUp.Activated = false;
+                // deactivate effects
+                if (powerUp.Type == "sticky")
+                {
+                    if (!isOtherPowerUpActive(this->PowerUps, "sticky"))
+                    {	// only reset if no other PowerUp of type sticky is active
+                        Ball->Sticky = false;
+                        Player->Color = glm::vec3(1.0f);
+                    }
+                }
+                else if (powerUp.Type == "pass-through")
+                {
+                    if (!isOtherPowerUpActive(this->PowerUps, "pass-through"))
+                    {	// only reset if no other PowerUp of type pass-through is active
+                        Ball->PassThrough = false;
+                        Ball->Color = glm::vec3(1.0f);
+                    }
+                }
+                else if (powerUp.Type == "confuse")
+                {
+                    if (!isOtherPowerUpActive(this->PowerUps, "confuse"))
+                    {	// only reset if no other PowerUp of type confuse is active
+                        Effects->Confuse = false;
+                    }
+                }
+                else if (powerUp.Type == "chaos")
+                {
+                    if (!isOtherPowerUpActive(this->PowerUps, "chaos"))
+                    {	// only reset if no other PowerUp of type chaos is active
+                        Effects->Chaos = false;
+                    }
+                }                
+            }
+        }
+    }
+    this->PowerUps.erase(std::remove_if(this->PowerUps.begin(), this->PowerUps.end(),
+        [](const PowerUp &powerUp) { return powerUp.Destroyed && !powerUp.Activated; }
+    ), this->PowerUps.end());
+}
+
 
 Collision CheckCollision(BallObject &one, GameObject &two) // AABB - Circle collision
 {
@@ -449,4 +493,15 @@ bool ShouldSpawn(unsigned int chance)
 {
     unsigned int random = rand() % chance;
     return random == 0;
+}
+
+bool isOtherPowerUpActive(std::vector<PowerUp> &powerUps, std::string type)
+{
+    for (const PowerUp &powerUp : powerUps)
+    {
+        if (powerUp.Activated)
+            if (powerUp.Type == type)
+                return true;
+    }
+    return false;
 }
