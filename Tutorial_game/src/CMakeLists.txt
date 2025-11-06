@@ -11,6 +11,7 @@ add_executable(Tutorial_game
     ball_object.cpp
     particle_generator.cpp
     post_processor.cpp
+    audio.cpp
 )
 
 # Copy assets to build directory
@@ -24,10 +25,11 @@ add_custom_target(assets ALL
 # Ensure update of assets
 add_dependencies(Tutorial_game assets)
 
-# Link GLFW + GLAD + OpenGL
+# Link GLFW + GLAD + OpenGL + GLM
 target_link_libraries(Tutorial_game PRIVATE glfw glad OpenGL::GL glm)
 
-# Add external headers
+# Add header
 target_include_directories(Tutorial_game PRIVATE
-    ${CMAKE_SOURCE_DIR}/include
+    ${miniaudio_SOURCE_DIR} 
+    ${stb_SOURCE_DIR}
 )

@@ -32,5 +32,19 @@ CPMAddPackage(
     GIT_TAG 1.0.1
 )
 
+# MiniAudio (header-only audio library)
+CPMAddPackage(
+    NAME miniaudio
+    GITHUB_REPOSITORY mackron/miniaudio
+    GIT_TAG f40cf03f80cdb7e741d43e53b7e706e8c1394bcf
+)
+
+# STB (header-only image library)
+CPMAddPackage(
+    NAME stb
+    GITHUB_REPOSITORY nothings/stb
+    GIT_TAG f1c79c02822848a9bed4315b12c8c8f3761e1296
+)
+
 # Add sources
 add_subdirectory(src)

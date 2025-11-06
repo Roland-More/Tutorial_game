@@ -38,9 +38,9 @@ cmake --build build --config Release
 
 #### Windows (MinGW)
 ```bash
-# You can add one of theese options to the configuration
-# -DCMAKE_BUILD_TYPE=Release
-# -DCMAKE_BUILD_TYPE=Debug
+##### You can add one of theese options to the configuration
+##### -DCMAKE_BUILD_TYPE=Release
+##### -DCMAKE_BUILD_TYPE=Debug
 cmake -B build -S . -G "MinGW Makefiles"
 cmake --build build
 ```
