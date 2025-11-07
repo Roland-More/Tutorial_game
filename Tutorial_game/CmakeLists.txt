@@ -37,6 +37,7 @@ CPMAddPackage(
     NAME miniaudio
     GITHUB_REPOSITORY mackron/miniaudio
     GIT_TAG f40cf03f80cdb7e741d43e53b7e706e8c1394bcf
+    DOWNLOAD_ONLY YES
 )
 
 # STB (header-only image library)

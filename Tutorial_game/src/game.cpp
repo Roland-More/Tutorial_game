@@ -18,12 +18,15 @@
 
 #include <algorithm>
 
+// Audio files
+const char* BACKGROUND_SONG = "assets/audio/breakout.mp3";
 
 SpriteRenderer    *Renderer;
 GameObject        *Player;
 BallObject        *Ball;
 ParticleGenerator *Particles;
 PostProcessor     *Effects;
+Audio              AudioManager;
 
 // Used to time shaking the screen
 float ShakeTime = 0.0f;
@@ -116,6 +119,9 @@ void Game::Init()
     // configure particles
     Particles = new ParticleGenerator(ResourceManager::GetShader("particle"), 
         ResourceManager::GetTexture("particle"), 500);
+
+    // Start playing music
+    AudioManager.play(BACKGROUND_SONG);
 }
 
 void Game::Update(float dt)

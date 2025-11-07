@@ -5,6 +5,7 @@ add_executable(Tutorial_game
     texture.cpp
     resource_manager.cpp
     stbi_impl.cpp
+    miniaudio_impl.cpp
     sprite_renderer.cpp
     game_object.cpp
     game_level.cpp
@@ -28,7 +29,7 @@ add_dependencies(Tutorial_game assets)
 # Link GLFW + GLAD + OpenGL + GLM
 target_link_libraries(Tutorial_game PRIVATE glfw glad OpenGL::GL glm)
 
-# Add header
+# Add header libraries
 target_include_directories(Tutorial_game PRIVATE
     ${miniaudio_SOURCE_DIR} 
     ${stb_SOURCE_DIR}
