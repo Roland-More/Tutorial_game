@@ -1,12 +1,12 @@
-#include "audio.h"
+#include "sound.h"
 
-Audio::Audio() { 
+Sound::Sound() { 
     ma_engine_init(nullptr, &this->engine); 
 }
-Audio::~Audio() {
+Sound::~Sound() {
     ma_engine_uninit(&this->engine); 
 }
 
-void Audio::play(const char* path) {
+void Sound::play(const char* path) {
     ma_engine_play_sound(&this->engine, path, nullptr);
 }

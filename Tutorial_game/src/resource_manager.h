@@ -13,6 +13,7 @@
 #include <string>
 
 #include <glad/glad.h>
+#include <miniaudio.h>
 
 #include "texture.h"
 #include "shader.h"
