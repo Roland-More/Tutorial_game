@@ -8,25 +8,27 @@
 ******************************************************************/
 #include <glm/glm.hpp>
 
+#define MINIAUDIO_IMPLEMENTATION
+#include "miniaudio.h"
+
 #include "game.h"
 #include "resource_manager.h"
 #include "sprite_renderer.h"
 #include "ball_object.h"
 #include "particle_generator.h"
 #include "post_processor.h"
-#include "audio.h"
+// #include "audio_manager.h"
 
 #include <algorithm>
+#include <iostream>
 
-// Audio files
-const char* BACKGROUND_SONG = "assets/audio/breakout.mp3";
 
 SpriteRenderer    *Renderer;
 GameObject        *Player;
 BallObject        *Ball;
 ParticleGenerator *Particles;
 PostProcessor     *Effects;
-Audio              AudioManager;
+// AudioManager      *Audio;
 
 // Used to time shaking the screen
 float ShakeTime = 0.0f;
@@ -86,6 +88,12 @@ void Game::Init()
     ResourceManager::LoadTexture("assets/textures/powerup_speed.png", true, "speed");
     ResourceManager::LoadTexture("assets/textures/powerup_sticky.png", true, "sticky");
 
+    // load sounds
+    // Audio = new AudioManager();
+
+    // Audio->loadSound("assets/audio/breakout.mp3", "gamemusic");
+    // Audio->setLooping("gamemusic", true);
+
     // Load post-processing resources
     Effects = new PostProcessor(ResourceManager::GetShader("effects"), this->Width, this->Height);
 
@@ -120,8 +128,13 @@ void Game::Init()
     Particles = new ParticleGenerator(ResourceManager::GetShader("particle"), 
         ResourceManager::GetTexture("particle"), 500);
 
-    // Start playing music
-    AudioManager.play(BACKGROUND_SONG);
+    // play music
+    // Audio->play("gamemusic");
+    ma_engine engine;
+    if (ma_engine_init(NULL, &engine) != MA_SUCCESS) {
+        std::cerr << "Failed to initialize audio engine\n";
+    }
+    // ma_engine_play_sound(&engine, "assets/audio/breakout.mp3", NULL); // async, returns instantly
 }
 
 void Game::Update(float dt)
