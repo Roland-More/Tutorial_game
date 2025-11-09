@@ -8,16 +8,13 @@
 ******************************************************************/
 #include <glm/glm.hpp>
 
-#define MINIAUDIO_IMPLEMENTATION
-#include "miniaudio.h"
-
 #include "game.h"
 #include "resource_manager.h"
 #include "sprite_renderer.h"
 #include "ball_object.h"
 #include "particle_generator.h"
 #include "post_processor.h"
-// #include "audio_manager.h"
+#include "audio_manager.h"
 
 #include <algorithm>
 #include <iostream>
@@ -28,7 +25,6 @@ GameObject        *Player;
 BallObject        *Ball;
 ParticleGenerator *Particles;
 PostProcessor     *Effects;
-// AudioManager      *Audio;
 
 // Used to time shaking the screen
 float ShakeTime = 0.0f;
@@ -55,7 +51,7 @@ Game::~Game()
     delete Effects;
 }
 
-void Game::Init()
+void Game::Init(AudioManager* audio)
 {
    // load shaders
     ResourceManager::LoadShader("assets/shaders/sprite.vert", "assets/shaders/sprite.frag", nullptr, "sprite");
@@ -89,10 +85,15 @@ void Game::Init()
     ResourceManager::LoadTexture("assets/textures/powerup_sticky.png", true, "sticky");
 
     // load sounds
-    // Audio = new AudioManager();
+    this->Audio = audio;
 
-    // Audio->loadSound("assets/audio/breakout.mp3", "gamemusic");
-    // Audio->setLooping("gamemusic", true);
+    this->Audio->loadSound("assets/audio/breakout.mp3", "gamemusic");
+    this->Audio->setLooping("gamemusic", true);
+
+    this->Audio->loadSound("assets/audio/bleep.mp3", "hit_nonsolid");
+    this->Audio->loadSound("assets/audio/solid.wav", "hit_solid");
+    this->Audio->loadSound("assets/audio/powerup.wav", "pickup_powerup");
+    this->Audio->loadSound("assets/audio/bleep.wav", "hit_paddle");
 
     // Load post-processing resources
     Effects = new PostProcessor(ResourceManager::GetShader("effects"), this->Width, this->Height);
@@ -129,12 +130,7 @@ void Game::Init()
         ResourceManager::GetTexture("particle"), 500);
 
     // play music
-    // Audio->play("gamemusic");
-    ma_engine engine;
-    if (ma_engine_init(NULL, &engine) != MA_SUCCESS) {
-        std::cerr << "Failed to initialize audio engine\n";
-    }
-    // ma_engine_play_sound(&engine, "assets/audio/breakout.mp3", NULL); // async, returns instantly
+    this->Audio->play("gamemusic");
 }
 
 void Game::Update(float dt)
@@ -241,11 +237,15 @@ void Game::DoCollisions()
                 {
                     box.Destroyed = true;
                     this->SpawnPowerUps(box);
+
+                    this->Audio->play("hit_nonsolid");
                 }
                 else
                 {   // if block is solid, enable shake effect
                     ShakeTime = 0.05f;
                     Effects->Shake = true;
+
+                    this->Audio->play("hit_solid");
                 }
                 // collision resolution
                 if (!box.IsSolid && Ball->PassThrough) continue;
@@ -276,7 +276,7 @@ void Game::DoCollisions()
         }
     }
 
-    Collision result = CheckCollision(*Ball, *Player);
+    const Collision result = CheckCollision(*Ball, *Player);
     if (!Ball->Stuck && std::get<0>(result))
     {
         // check where it hit the board, and change velocity based on where it hit the board
@@ -293,6 +293,8 @@ void Game::DoCollisions()
         Ball->Velocity.y = -1.0f * abs(Ball->Velocity.y);
 
         Ball->Stuck = Ball->Sticky;
+
+        this->Audio->play("hit_paddle");
     }
 
     for (PowerUp &powerUp : this->PowerUps)
@@ -306,6 +308,8 @@ void Game::DoCollisions()
                 ActivatePowerUp(powerUp);
                 powerUp.Destroyed = true;
                 powerUp.Activated = true;
+
+                this->Audio->play("pickup_powerup");
             }
         }
     }

@@ -5,7 +5,7 @@ add_executable(Tutorial_game
     texture.cpp
     resource_manager.cpp
     stbi_impl.cpp
-    # miniaudio_impl.cpp
+    miniaudio_impl.cpp
     sprite_renderer.cpp
     game_object.cpp
     game_level.cpp

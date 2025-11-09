@@ -17,6 +17,7 @@
 
 #include "game_level.h"
 #include "power_up.h"
+#include "audio_manager.h"
 
 // Represents the current state of the game
 enum GameState {
@@ -56,7 +57,7 @@ public:
     Game(unsigned int width, unsigned int height);
     ~Game();
     // initialize game state (load all shaders/textures/levels)
-    void Init();
+    void Init(AudioManager* audio);
     // game loop
     void ProcessInput(float dt);
     void Update(float dt);
@@ -72,6 +73,9 @@ private:
     // level tracking
     std::vector<GameLevel> Levels;
     unsigned int           Level;
+
+    // audio
+    AudioManager* Audio;
     
     void DoCollisions();
 

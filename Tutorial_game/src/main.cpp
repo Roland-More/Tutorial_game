@@ -11,6 +11,7 @@
 
 #include "game.h"
 #include "resource_manager.h"
+#include "audio_manager.h"
 
 #include <iostream>
 #include <thread>
@@ -31,6 +32,11 @@ Game Breakout(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 int main(int argc, char *argv[])
 {
+    AudioManager Audio;
+    // Audio.loadSound("assets/audio/breakout.mp3", "breakout");
+    // Audio.setLooping("breakout", true);
+    // Audio.play("breakout");
+
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -62,7 +68,7 @@ int main(int argc, char *argv[])
 
     // initialize game
     // ---------------
-    Breakout.Init();
+    Breakout.Init(&Audio);
 
     // deltaTime variables
     // -------------------
@@ -96,7 +102,7 @@ int main(int argc, char *argv[])
         glfwSwapBuffers(window);
 
         const float frameTime = glfwGetTime() - currentFrame;
-        std::this_thread::sleep_for(std::chrono::nanoseconds(static_cast<int>(1000000000 * (1.0f / FPS - frameTime)) ));
+        std::this_thread::sleep_for(std::chrono::nanoseconds(static_cast<int>(1e9 * (1.0f / FPS - frameTime)) ));
     }
 
     // delete all resources as loaded using the resource manager

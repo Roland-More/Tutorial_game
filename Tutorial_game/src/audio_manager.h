@@ -20,7 +20,7 @@ public:
 private:
     ma_engine engine;
 
-    std::unordered_map<std::string, ma_sound> sounds;
+    std::unordered_map<std::string, ma_sound*> sounds;
 };
 
 #endif
