@@ -32,6 +32,13 @@ CPMAddPackage(
     GIT_TAG 1.0.1
 )
 
+# FreeType (font rendering)
+CPMAddPackage(
+    NAME freetype
+    GITHUB_REPOSITORY freetype/freetype
+    GIT_TAG VER-2-14-1
+)
+
 # MiniAudio (header-only audio library)
 CPMAddPackage(
     NAME miniaudio

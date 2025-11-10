@@ -8,6 +8,7 @@ A C++ project using [CMake](https://cmake.org/) and [CPM.cmake](https://github.c
   - [GLFW](https://github.com/glfw/glfw) – window & input
   - [GLAD](https://github.com/Dav1dde/glad) – OpenGL loader
   - [GLM](https://github.com/g-truc/glm) - graphics math library
+  - [FreeType](https://github.com/freetype/freetype) - font rendering
   - [STB](https://github.com/nothings/stb) - image loading
   - [Miniaudio](https://github.com/mackron/miniaudio) - audio library
 

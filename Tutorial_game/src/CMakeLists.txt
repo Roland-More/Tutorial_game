@@ -13,6 +13,7 @@ add_executable(Tutorial_game
     particle_generator.cpp
     post_processor.cpp
     audio_manager.cpp
+    text_renderer.cpp
 )
 
 # Copy assets to build directory
@@ -27,7 +28,8 @@ add_custom_target(assets ALL
 add_dependencies(Tutorial_game assets)
 
 # Link GLFW + GLAD + OpenGL + GLM
-target_link_libraries(Tutorial_game PRIVATE glfw glad OpenGL::GL glm)
+target_link_libraries(Tutorial_game PRIVATE 
+                glfw glad OpenGL::GL glm freetype)
 
 # Add header libraries
 target_include_directories(Tutorial_game PRIVATE
